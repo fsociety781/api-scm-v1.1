@@ -9,6 +9,190 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
+}
+
+model User {
+  id        BigInt @id @default(autoincrement())
+  name      String @db.VarChar(100)
+  address   String @db.VarChar(100)
+  username  String @unique @db.VarChar(20)
+  email     String @unique @db.VarChar(50)
+  password  String @db.VarChar(100)
+  barnId    BigInt
+  role      user_role @default(user)
+  is_active Boolean @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  barn barn @relation(fields: [barnId], references: [id], map: "User_barn_id_fkey")
+
+  @@index([barnId], map: "User_barn_id_fkey")
+}
+model device {
+  id     BigInt @id @default(autoincrement())
+  guid   String @unique @db.VarChar(50)
+  versionId BigInt
+  barnId BigInt
+  status device_status @default(offline)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  sensor sensor[]
+  setDevice setDevice[]
+  setSchedule setSchedule[]
+  mode mode[]
+  scheduleMode scheduleMode[]
+  history history[]
+  controll controll[]
+
+  barn barn @relation(fields: [barnId], references: [id], map: "Device_barn_id_fkey")
+  version version @relation(fields: [versionId], references: [id], map: "Device_version_id_fkey")
+
+  @@index([barnId], map: "device_barnId_fkey")
+  @@index([versionId], map: "device_versionId_fkey")
+}
+
+model sensor {
+  id          BigInt @id @default(autoincrement())
+  deviceId    BigInt 
+  temperature Float
+  humidity    Float
+  time       String @db.VarChar(50)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  device device @relation(fields: [deviceId], references: [id], map: "sensor_deviceId_fkey")
+
+  @@index([deviceId], map: "sensor_deviceId_fkey")
+}
+
+model setDevice {
+  id       BigInt @id @default(autoincrement())
+  deviceId BigInt 
+  MinS     Int
+  MidS     Int
+  MinK     Int
+  MidK     Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  device device @relation(fields: [deviceId], references: [id], map: "setDevice_deviceId_fkey")
+
+  @@index([deviceId], map: "setDevice_deviceId_fkey")
+}
+
+model setSchedule {
+  id       BigInt @id @default(autoincrement())
+  deviceId BigInt
+  hour     Int
+  minute   Int
+  min_timer Int
+  second_timer Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  device device @relation(fields: [deviceId], references: [id], map: "setSchedule_deviceId_fkey")
+
+  @@index([deviceId], map: "setSchedule_deviceId_fkey")
+}
+
+model mode {
+  id       BigInt @id @default(autoincrement())
+  deviceId BigInt
+  mode     mode_type @default(manual)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  device device @relation(fields: [deviceId], references: [id], map: "mode_deviceId_fkey")
+
+  @@index([deviceId], map: "mode_deviceId_fkey")
+}
+
+model scheduleMode {
+  id       BigInt @id @default(autoincrement())
+  deviceId BigInt
+  schedule schedule @default(off)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  device device @relation(fields: [deviceId], references: [id], map: "scheduleMode_deviceId_fkey")
+
+  @@index([deviceId], map: "scheduleMode_deviceId_fkey")
+}
+model history {
+  id       BigInt @id @default(autoincrement())
+  deviceId BigInt
+  mode     String @db.VarChar(50)
+  fan      String @db.VarChar(50)
+  pump     String @db.VarChar(50)
+  time     DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  device device @relation(fields: [deviceId], references: [id], map: "history_deviceId_fkey")
+
+  @@index([deviceId], map: "history_deviceId_fkey")
+
+}
+
+model controll {
+  id       BigInt @id @default(autoincrement())
+  deviceId BigInt
+  fan      Int
+  pump     Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  device device @relation(fields: [deviceId], references: [id], map: "controll_deviceId_fkey")
+
+  @@index([deviceId], map: "controll_deviceId_fkey")
+}
+
+model barn {
+  id        BigInt @id @default(autoincrement())
+  name      String @db.VarChar(100)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  User User[]
+  device device[]
+  informatian informatian[]
+}
+
+model version {
+  id        BigInt @id @default(autoincrement())
+  version   String @db.VarChar(50)
+  firmware  Bytes
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  device device[]
+
+}
+
+model informatian {
+  id            BigInt @id @default(autoincrement())
+  barnId        BigInt
+  cycle         String @db.VarChar(50)
+  harvest_date  DateTime
+  harvest_yield String @db.VarChar(50)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  barn barn @relation(fields: [barnId], references: [id], map: "informatian_barnId_fkey")
+
+  @@index([barnId], map: "informatian_barnId_fkey")
+}
+
+enum user_role {
+  admin
+  user 
+}
+
+enum device_status {
+  online
+  offline
+}
+
+enum mode_type {
+  manual
+  auto
+  haybrid
+}
+
+enum schedule { 
+  off
+  modeSchedule1
+  modeSchedule2
 }
