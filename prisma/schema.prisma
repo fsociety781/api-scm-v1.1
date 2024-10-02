@@ -20,15 +20,16 @@ model User {
   username  String @unique @db.VarChar(20)
   email     String @unique @db.VarChar(50)
   password  String @db.VarChar(100)
-  barnId    BigInt
+  barnId    BigInt?
   role      user_role @default(user)
   is_active Boolean @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  barn barn @relation(fields: [barnId], references: [id], map: "User_barn_id_fkey")
+  barn barn? @relation(fields: [barnId], references: [id], map: "User_barn_id_fkey") // Optional relation
 
   @@index([barnId], map: "User_barn_id_fkey")
 }
+
 model device {
   id     BigInt @id @default(autoincrement())
   guid   String @unique @db.VarChar(50)
