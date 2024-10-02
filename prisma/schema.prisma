@@ -176,6 +176,13 @@ model informatian {
   @@index([barnId], map: "informatian_barnId_fkey")
 }
 
+model acces {
+  id Int @id @default(autoincrement())
+  userId Int
+  name String @db.VarChar(20)
+  token String  @db.Text()
+}
+
 enum user_role {
   admin
   user 
