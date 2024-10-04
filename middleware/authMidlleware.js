@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const prisma = require("../bin/prisma");
+const prisma = require("../bin/prismaConfig");
 const jwtkey = process.env.JWT_KEY;
 
 async function verifyToken(req, res, next) {
