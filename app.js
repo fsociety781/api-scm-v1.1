@@ -9,6 +9,8 @@ const logger = require('morgan');
 const { client } = require('./bin/mqttConfig');
 const prisma = require("./bin/prismaConfig");
 
+const loginRouter = require('./routes/Auth');
+
 const app = express();
 
 // view engine setup
@@ -22,5 +24,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(cors());
 app.use(bodyParser.json());
+
+app.use(loginRouter);
 
 module.exports = app;
