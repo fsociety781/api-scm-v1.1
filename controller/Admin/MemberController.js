@@ -158,7 +158,6 @@ class MemberController {
               const newMember = await prisma.user.create({
                 data:{
                     name: name,
-                    barnId: null,
                     address: address,
                     email: email,
                     username: username,
