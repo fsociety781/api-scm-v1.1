@@ -35,7 +35,6 @@ class MemberController {
                   address: true,
                   email: true,
                   username: true,
-                  is_active: true,
                 },
                 take: limit,
                 skip: offset,
@@ -67,6 +66,39 @@ class MemberController {
                 message: "Internal Server Error",
             });
         }
+    }
+
+    static async getMemberById(req, res, next) {
+        let { id } = req.params;
+      id = parseInt(id);
+
+      const member = await prisma.user.findUnique({
+        where: {
+          id: id,
+        },
+        select: {
+            barnId: true,
+            name: true,
+            address: true,
+            email: true,
+        },
+      });
+
+      if (!member) {
+        return res.status(404).json({
+          status: "404",
+          message: "Member with id " + id + " not found",
+        });
+      } else {
+        return res.status(200).json({
+          status: "200",
+          message: "Success get member " + member.name + "",
+          data: member,
+        });
+      }
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json(error);
     }
 }
 
