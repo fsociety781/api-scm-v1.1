@@ -6,4 +6,6 @@ const AdminMiddleware = require("../../middleware/adminMiddleware");
 
 const MemberController = require("../../controller/Admin/MemberController");
 
+Route.get("/admin/member", AuthMiddleware, AdminMiddleware, MemberController.getMembers);
+
 module.exports = Route;
