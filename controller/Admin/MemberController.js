@@ -69,36 +69,110 @@ class MemberController {
     }
 
     static async getMemberById(req, res, next) {
+      try {
         let { id } = req.params;
-      id = parseInt(id);
+        id = parseInt(id);
 
-      const member = await prisma.user.findUnique({
-        where: {
-          id: id,
-        },
-        select: {
-            barnId: true,
-            name: true,
-            address: true,
-            email: true,
-        },
-      });
+            const member = await prisma.user.findUnique({
+                where: {
+                id: id,
+                },
+                select: {
+                    barnId: true,
+                    name: true,
+                    address: true,
+                    email: true,
+                },
+            });
 
-      if (!member) {
-        return res.status(404).json({
-          status: "404",
-          message: "Member with id " + id + " not found",
-        });
-      } else {
-        return res.status(200).json({
-          status: "200",
-          message: "Success get member " + member.name + "",
-          data: member,
-        });
-      }
-    } catch (error) {
-      console.log(error);
-      return res.status(500).json(error);
+            if (!member) {
+                return res.status(404).json({
+                status: "404",
+                message: "Member with id " + id + " not found",
+                });
+            } else {
+                return res.status(200).json({
+                status: "200",
+                message: "Success get member " + member.name + "",
+                data: member,
+                });
+            }
+        } catch (error) {
+        console.log(error);
+        return res.status(500).json(error);
+        }
+    }
+
+    static async storeMember(req, res, next) {
+        try {
+            const {name , address, email, username, password} = req.body;
+            if(!name || !address || !email || !username || !password){
+                return res.status(400).json({
+                    status: 400,
+                    message: "All field is required",
+                });
+            }
+
+            const existingUsername = await prisma.user.findFirst({
+                where: {
+                  OR: [
+                    { username: username, is_active: true },
+                    { username: username, is_active: false },
+                  ],
+                },
+              });
+        
+              const existingEmail = await prisma.user.findFirst({
+                where: {
+                  OR: [
+                    { email: email, is_active: true },
+                    { email: email, is_active: false },
+                  ],
+                },
+              });
+        
+              if (existingUsername && existingEmail) {
+                return res.status(400).json({
+                  status: false,
+                  message: "Username and Email already exist",
+                });
+              }
+        
+              if (existingUsername) {
+                return res.status(400).json({
+                  status: "400",
+                  message: "Username has already been taken",
+                });
+              }
+        
+              if (existingEmail) {
+                return res.status(400).json({
+                  status: "400",
+                  message: "Email has already been taken",
+                });
+              }
+
+              const salt = genSaltSync(10);
+              const hashedPassword = hashSync(password, salt);
+
+              const newMember = await prisma.user.create({
+                data:{
+                    name: name,
+                    barnId: null,
+                    address: address,
+                    email: email,
+                    username: username,
+                    password: hashedPassword,
+                }
+              })
+            
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+            status: 500,
+            message: "Internal Server Error",
+            });
+        }
     }
 }
 
