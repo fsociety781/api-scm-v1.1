@@ -25,7 +25,6 @@ server.listen(port, async () => {
       await prisma.user.create({
         data: {
           name: "admin",
-          barnId: null,
           address: "",
           username: "admin",
           email: "admin123@gmail.com",
