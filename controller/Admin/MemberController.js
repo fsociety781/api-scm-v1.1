@@ -2,7 +2,7 @@ const prisma = require("../../bin/prismaConfig");
 const { hashSync, genSaltSync, compareSync, hash } = require("bcrypt");
 
 class MemberController {
-    static async getMember(req, res, next) {
+    static async getMembers(req, res, next) {
         try{
             const { search } = req.query;
             const page = req.query.page || 0;

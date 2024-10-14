@@ -10,6 +10,7 @@ const { client } = require('./bin/mqttConfig');
 const prisma = require("./bin/prismaConfig");
 
 const loginRouter = require('./routes/Auth');
+const adminRouter = require('./routes/Admin');
 
 const app = express();
 
@@ -26,5 +27,6 @@ app.use(cors());
 app.use(bodyParser.json());
 
 app.use(loginRouter);
+app.use(adminRouter);
 
 module.exports = app;
