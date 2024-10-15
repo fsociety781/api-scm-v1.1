@@ -179,6 +179,103 @@ class MemberController {
             });
         }
     }
+
+    static async updateMember(req, res, next) {
+        try {
+          const {name, address, email, username, password} = req.body;
+          let { id } = req.params;
+          id = parseInt(id);
+          if (!id || isNaN(id)) {
+            return res.status(400).json({
+              status: 400,
+              message: "ID is required",
+            });
+          }
+
+          const findMember = await prisma.user.findUnique({
+            where: {
+              id: id,
+            },
+          });
+
+          if(!findMember){
+            return res.status(404).json({
+              status: 404,
+              message: `Member with id ${id} not found`,
+            });
+          }
+
+          const existingUsername = await prisma.user.findFirst({
+            where: {
+              OR: [
+                { username: username, is_active: true },
+                { username: username, is_active: false },
+              ],
+            },
+          });
+    
+          const existingEmail = await prisma.user.findFirst({
+            where: {
+              OR: [
+                { email: email, is_active: true },
+                { email: email, is_active: false },
+              ],
+            },
+          });
+    
+          if (username && existingUsername && existingUsername.id !== id) {
+            return res.status(400).json({
+              status: "400",
+              message: "Username has already been taken",
+            });
+          } else if (email && existingEmail && existingEmail.id !== id) {
+            return res.status(400).json({
+              status: "400",
+              message: "Email has already been taken",
+            });
+          }
+
+          const salt = genSaltSync(10);
+          const hashedPassword = hashSync(password, salt);
+
+          const updatedMember = await prisma.user.update({
+            where: {
+              id: id,
+            },
+            data: {
+              name: name || findMember.name,
+              address: address || findMember.address,
+              email: email || findMember.email,
+              username: username || findMember.username,
+              password: hashedPassword || findMember.password,
+            },
+          })
+
+          if(!updatedMember){
+            return res.status(400).json({
+              status: 400,
+              message: "Failed to update member",
+            });
+          }
+
+          return res.status(200).json({
+            status: 200,
+            message: "Member updated",
+            data: {
+              name: updatedMember.name,
+              address: updatedMember.address,
+              email: updatedMember.email,
+              username: updatedMember.username,
+            }
+          });
+
+        } catch (error) {
+          return res.status(500).json({
+            status: 500,
+            message: "Internal Server Error",
+          });
+        }
+    }
 }
 
 module.exports = MemberController;
