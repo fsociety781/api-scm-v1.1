@@ -164,6 +164,12 @@ class MemberController {
                     password: hashedPassword,
                 }
               })
+
+            return res.status(201).json({
+                status: 201,
+                message: "Member created",
+                data: newMember,
+            });
             
         } catch (error) {
             console.log(error);
