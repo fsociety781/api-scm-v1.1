@@ -158,13 +158,18 @@ class MemberController {
               const newMember = await prisma.user.create({
                 data:{
                     name: name,
-                    barnId: null,
                     address: address,
                     email: email,
                     username: username,
                     password: hashedPassword,
                 }
               })
+
+            return res.status(201).json({
+                status: 201,
+                message: "Member created",
+                data: newMember,
+            });
             
         } catch (error) {
             console.log(error);

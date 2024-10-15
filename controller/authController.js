@@ -61,7 +61,7 @@ class AuthController{
                 },
                 jwtkey,
                 {
-                  expiresIn: "2h",
+                  expiresIn: "5h",
                 }
               );
 
