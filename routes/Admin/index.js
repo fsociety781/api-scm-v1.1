@@ -8,5 +8,6 @@ const MemberController = require("../../controller/Admin/MemberController");
 
 Route.get("/admin/member", AuthMiddleware, AdminMiddleware, MemberController.getMembers);
 Route.get("/admin/member/:id", AuthMiddleware, AdminMiddleware, MemberController.getMemberById);
+Route.post("/admin/member", AuthMiddleware, AdminMiddleware, MemberController.storeMember);
 
 module.exports = Route;
